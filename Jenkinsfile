@@ -3,13 +3,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout from GitHub') {
-            steps {
-                git branch: 'master',
-                    url: 'https://github.com/AkshayaReddyDubbaka/node-k8s-app.git'
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
                 sh 'npm install'
@@ -27,34 +20,16 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                sh 'docker push AkshayaReddyDubbaka/my-k8s-app:${BUILD_NUMBER}'
-            }
-        }
-
-    stage('Start Minikube if not running') {
-    steps {
-        sh '''
-        if ! minikube status | grep -q "apiserver: Running"; then
-            echo "Minikube is not running. Starting now..."
-            minikube start --driver=docker --memory=2048 --cpus=2
-        fi
-        '''
-    }
-}
-
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh '''
-                # Replace image tag inside deployment.yaml
-                sed -i "s/IMAGE_TAG/${BUILD_NUMBER}/g" k8s/deployment.yaml
-
-                # Load image into Minikube
-                minikube image load AkshayaReddyDubbaka/my-k8s-app:${BUILD_NUMBER}
-
-                # Apply manifests
-                minikube kubectl -- apply -f k8s/deployment.yaml
-                minikube kubectl -- apply -f k8s/service.yaml
-                '''
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    docker push AkshayaReddyDubbaka/my-k8s-app:${BUILD_NUMBER}
+                    '''
+                }
             }
         }
     }
