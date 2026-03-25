@@ -77,7 +77,7 @@ pipeline {
                 docker rm my-app || true
 
                 # Run new container
-                docker run -d -p 3000:3000 --name my-app akshayareddy23/my-k8s-app:${BUILD_NUMBER}
+                docker run -d -p 3001:3000 --name my-app akshayareddy23/my-k8s-app:9
                 '''
             }
         }
