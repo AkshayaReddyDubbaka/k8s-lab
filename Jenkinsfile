@@ -13,7 +13,7 @@ pipeline {
             steps {
                 sh '''
                 docker build -t my-k8s-app:${BUILD_NUMBER} .
-                docker tag my-k8s-app:${BUILD_NUMBER} AkshayaReddyDubbaka/my-k8s-app:${BUILD_NUMBER}
+                docker tag my-k8s-app:${BUILD_NUMBER} akshayareddy23/my-k8s-app:${BUILD_NUMBER}
                 '''
             }
         }
@@ -27,7 +27,7 @@ pipeline {
                 )]) {
                     sh '''
                     echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                    docker push AkshayaReddyDubbaka/my-k8s-app:${BUILD_NUMBER}
+                    docker push akshayareddy23/my-k8s-app:${BUILD_NUMBER}
                     '''
                 }
             }
